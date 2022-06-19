@@ -1,10 +1,13 @@
+import {
+  LedgerService,
+  PaymentService as Service,
+  TransactionService,
+  UserService,
+} from "..";
 import CustomError from "../../errors/errors";
 import { Payment, UserTransaction } from "../../models/transaction";
-import LedgerService from "../ledger";
-import TransactionService from "../transactions";
-import UserService from "../users";
 
-class PaymentService {
+class PaymentService implements Service {
   private transactionService: TransactionService;
   private userService: UserService;
   private ledgerService: LedgerService;

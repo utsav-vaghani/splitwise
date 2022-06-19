@@ -1,9 +1,9 @@
+import { TransactionRepository as Repository } from "../";
 import { DB } from "../../db/mongodb";
 import { UserTransaction } from "../../models/transaction";
-
 const db = DB.collection("transactions");
 
-class TransactionRepository {
+class TransactionRepository implements Repository {
   Update(transaction: UserTransaction) {
     return db.updateOne(
       { payerId: transaction.payerId, userId: transaction.userId },

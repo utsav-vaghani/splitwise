@@ -1,10 +1,11 @@
 import { mongo } from "mongoose";
+import { LedgerRepository as Repository } from "../";
 import { DB } from "../../db/mongodb";
 import { Transaction } from "../../models/transaction";
 
 const db = DB.collection("ledger");
 
-class LedgerRepository {
+class LedgerRepository implements Repository {
   Insert(transaction: Transaction) {
     return db.insertOne({
       payerId: transaction.payerId,

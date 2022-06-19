@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import CustomError from "../../../../errors/errors";
-import LedgerService from "../../../../services/ledger";
+import { LedgerService } from "../../../../services/";
 
 class LedgerController {
-  private ledgerService: LedgerService;
+  private service: LedgerService;
 
-  constructor(ledgerService: LedgerService) {
-    this.ledgerService = ledgerService;
+  constructor(service: LedgerService) {
+    this.service = service;
 
     // binding methods
     this.GetByID = this.GetByID.bind(this);
@@ -19,7 +19,7 @@ class LedgerController {
     }
 
     try {
-      const transaction = await this.ledgerService.GetByID(req.params.id);
+      const transaction = await this.service.GetByID(req.params.id);
       next({ transaction });
     } catch (err) {
       next(err);
@@ -35,9 +35,9 @@ class LedgerController {
         const payerId = payerIdStr.includes(",")
           ? payerIdStr.split(",")[0]
           : payerIdStr;
-        data.transaction = await this.ledgerService.GetByPayerID(payerId);
+        data.transaction = await this.service.GetByPayerID(payerId);
       } else {
-        data.transactions = await this.ledgerService.GetAll();
+        data.transactions = await this.service.GetAll();
       }
 
       next(data);

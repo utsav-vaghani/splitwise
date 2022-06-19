@@ -1,11 +1,12 @@
+import { UserService as Service } from "../";
 import CustomError from "../../errors/errors";
-import UserRepository from "../../repositories/users";
+import { UserRepository } from "../../repositories";
 
-export default class UserService {
-  private userRepository: UserRepository;
+class UserService implements Service {
+  private repo: UserRepository;
 
-  constructor(userRepository: UserRepository) {
-    this.userRepository = userRepository;
+  constructor(repo: UserRepository) {
+    this.repo = repo;
   }
 
   GetByID(id: string) {
@@ -13,7 +14,7 @@ export default class UserService {
       throw new CustomError(400, "invalid id");
     }
 
-    return this.userRepository.FindByID(id);
+    return this.repo.FindByID(id);
   }
 
   GetByEmail(email: string) {
@@ -21,7 +22,7 @@ export default class UserService {
       throw new CustomError(400, "invalid email");
     }
 
-    return this.userRepository.FindByEmail(email);
+    return this.repo.FindByEmail(email);
   }
 
   GetByPhone(phone: string) {
@@ -29,11 +30,11 @@ export default class UserService {
       throw new CustomError(400, "invalid phone");
     }
 
-    return this.userRepository.FindByPhone(phone);
+    return this.repo.FindByPhone(phone);
   }
 
   GetAll() {
-    return this.userRepository.FindAll();
+    return this.repo.FindAll();
   }
 
   async Create(data: User) {
@@ -42,8 +43,8 @@ export default class UserService {
     }
 
     let results = await Promise.allSettled([
-      this.userRepository.FindByEmail(data.email),
-      this.userRepository.FindByPhone(data.phone),
+      this.repo.FindByEmail(data.email),
+      this.repo.FindByPhone(data.phone),
     ]);
 
     for (const value of results) {
@@ -52,7 +53,7 @@ export default class UserService {
       }
     }
 
-    return this.userRepository.Insert(data);
+    return this.repo.Insert(data);
   }
 
   async Update(user: User) {
@@ -60,7 +61,7 @@ export default class UserService {
       throw new Error("invalid user details");
     }
 
-    const dbUser = await this.userRepository.FindByID(user._id);
+    const dbUser = await this.repo.FindByID(user._id);
 
     if (dbUser === null) {
       throw new CustomError(403, "cannot update non-existing user");
@@ -70,7 +71,7 @@ export default class UserService {
     user.name ||= dbUser.name;
     user.phone ||= dbUser.phone;
 
-    return this.userRepository.Update(user);
+    return this.repo.Update(user);
   }
 
   Delete(id: string) {
@@ -78,6 +79,8 @@ export default class UserService {
       throw new CustomError(403, "invalid id");
     }
 
-    return this.userRepository.Delete(id);
+    return this.repo.Delete(id);
   }
 }
+
+export default UserService;

@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import CustomError from "../../../../errors/errors";
-import UserService from "../../../../services/users";
+import { UserService } from "../../../../services";
 
 class UserController {
-  private userService: UserService;
+  private service: UserService;
 
-  constructor(userService: UserService) {
-    this.userService = userService;
+  constructor(service: UserService) {
+    this.service = service;
 
     // binding methods to this
     this.Create = this.Create.bind(this);
@@ -18,7 +18,7 @@ class UserController {
 
   async GetByID(req: Request, res: Response, next: NextFunction) {
     try {
-      const user = await this.userService.GetByID(req.params.id);
+      const user = await this.service.GetByID(req.params.id);
       next({
         statusCode: 200,
         data: { user },
@@ -34,9 +34,7 @@ class UserController {
         throw new CustomError(400, "invalid email");
       }
 
-      const user = await this.userService.GetByEmail(
-        req.query.email.toString()
-      );
+      const user = await this.service.GetByEmail(req.query.email.toString());
       next({
         statusCode: 200,
         data: { user },
@@ -48,7 +46,7 @@ class UserController {
 
   async GetByPhone(req: Request, res: Response, next: NextFunction) {
     try {
-      const user = await this.userService.GetByPhone(req.params.phone);
+      const user = await this.service.GetByPhone(req.params.phone);
       next({
         statusCode: 200,
         data: { user },
@@ -67,15 +65,15 @@ class UserController {
         const email = emailStr.includes(",")
           ? emailStr.split(",")[0]
           : emailStr;
-        data.user = await this.userService.GetByEmail(email);
+        data.user = await this.service.GetByEmail(email);
       } else if (req.query.phone !== undefined) {
         const phoneStr = req.query.phone.toString();
         const phone = phoneStr.includes(",")
           ? phoneStr.split(",")[0]
           : phoneStr;
-        data.user = await this.userService.GetByPhone(phone);
+        data.user = await this.service.GetByPhone(phone);
       } else {
-        data.users = await this.userService.GetAll();
+        data.users = await this.service.GetAll();
       }
 
       next({
@@ -96,7 +94,7 @@ class UserController {
         _id: "",
       };
 
-      const data = await this.userService.Create(user);
+      const data = await this.service.Create(user);
       if (data != null && data.acknowledged) {
         next({
           statusCode: 201,
@@ -120,7 +118,7 @@ class UserController {
         phone: req.body.phone,
       };
 
-      const data = await this.userService.Update(user);
+      const data = await this.service.Update(user);
       if (data != null && data.acknowledged) {
         next({ statusCode: 200, data: { status: "SUCCESS" } });
         return;
@@ -134,7 +132,7 @@ class UserController {
 
   async Delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await this.userService.Delete(req.params.id);
+      const data = await this.service.Delete(req.params.id);
       if (data != null && data.acknowledged) {
         next({
           statusCode: 204,

@@ -1,24 +1,25 @@
+import { LedgerService as Service } from "../";
 import CustomError from "../../errors/errors";
 import { Transaction } from "../../models/transaction";
-import LedgerRepository from "../../repositories/ledger";
+import { LedgerRepository } from "../../repositories";
 
-class LedgerService {
-  private ledgerRepository: LedgerRepository;
+class LedgerService implements Service {
+  private repo: LedgerRepository;
 
   constructor(transactionRepository: LedgerRepository) {
-    this.ledgerRepository = transactionRepository;
+    this.repo = transactionRepository;
   }
 
   GetByID(id: string) {
-    return this.ledgerRepository.FindByID(id);
+    return this.repo.FindByID(id);
   }
 
   GetByPayerID(id: string) {
-    return this.ledgerRepository.FindByPayerID(id);
+    return this.repo.FindByPayerID(id);
   }
 
   GetAll() {
-    return this.ledgerRepository.FindAll();
+    return this.repo.FindAll();
   }
 
   Insert(transaction: Transaction) {
@@ -26,7 +27,7 @@ class LedgerService {
       throw new CustomError(400, "invalid transaction details");
     }
 
-    return this.ledgerRepository.Insert(transaction);
+    return this.repo.Insert(transaction);
   }
 
   async Update(transaction: Transaction) {
@@ -34,7 +35,7 @@ class LedgerService {
       throw new CustomError(400, "invalid transaction details");
     }
 
-    const dbTransaciton = await this.ledgerRepository.FindByID(transaction._id);
+    const dbTransaciton = await this.repo.FindByID(transaction._id);
 
     if (!dbTransaciton) {
       throw new CustomError(500, "internal server error");
@@ -45,11 +46,11 @@ class LedgerService {
     transaction.participants ||= dbTransaciton.participants;
     transaction.amount ||= dbTransaciton.amount;
 
-    return this.ledgerRepository.Update(transaction);
+    return this.repo.Update(transaction);
   }
 
   Delete(id: string) {
-    return this.ledgerRepository.Delete(id);
+    return this.repo.Delete(id);
   }
 }
 

@@ -1,12 +1,13 @@
+import { TransactionService as Service } from "..";
 import CustomError from "../../errors/errors";
 import { UserTransaction } from "../../models/transaction";
-import TransactionRepository from "../../repositories/transactions";
+import { TransactionRepository } from "../../repositories";
 
-class TransactionService {
-  private transactionRepository: TransactionRepository;
+class TransactionService implements Service {
+  private repo: TransactionRepository;
 
-  constructor(transactionRepository: TransactionRepository) {
-    this.transactionRepository = transactionRepository;
+  constructor(repo: TransactionRepository) {
+    this.repo = repo;
   }
 
   async Update(transaction: UserTransaction) {
@@ -45,7 +46,7 @@ class TransactionService {
       return;
     }
 
-    let result = await this.transactionRepository.Update({
+    let result = await this.repo.Update({
       payerId: transaction.payerId,
       userId: transaction.userId,
       amount: amount,
@@ -65,7 +66,7 @@ class TransactionService {
       amount += uTransaction.amount;
     }
 
-    result = await this.transactionRepository.Update({
+    result = await this.repo.Update({
       payerId: transaction.userId,
       userId: transaction.payerId,
       amount: amount,
@@ -80,8 +81,8 @@ class TransactionService {
     if (!filter || filter.payerId == undefined || filter.userId == undefined) {
       throw new CustomError(400, "invalid filter");
     }
-    
-    return this.transactionRepository.FindOne(filter);
+
+    return this.repo.FindOne(filter);
   }
 
   FindByUserId(userId: string) {
@@ -89,7 +90,7 @@ class TransactionService {
       throw new CustomError(400, "invalid userId");
     }
 
-    return this.transactionRepository.FindByUserId(userId);
+    return this.repo.FindByUserId(userId);
   }
 
   FindByPayerId(payerId: string) {
@@ -97,7 +98,7 @@ class TransactionService {
       throw new CustomError(400, "invalid payerId");
     }
 
-    return this.transactionRepository.FindByPayerId(payerId);
+    return this.repo.FindByPayerId(payerId);
   }
 
   Delete(filter: any) {
@@ -105,7 +106,7 @@ class TransactionService {
       throw new CustomError(400, "invalid filter");
     }
 
-    return this.transactionRepository.Delete(filter);
+    return this.repo.Delete(filter);
   }
 }
 

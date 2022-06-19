@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import CustomError from "../../../../errors/errors";
-import PaymentService from "../../../../services/payments";
+import { PaymentService } from "../../../../services/";
 
 class PaymentController {
   private paymentService: PaymentService;

@@ -1,9 +1,10 @@
 import { mongo } from "mongoose";
+import { UserRepository as Repository } from "../";
 import { DB } from "../../db/mongodb";
 
 const db = DB.collection("users");
 
-class UserRepository {
+class UserRepository implements Repository {
   Insert(user: User) {
     return db.insertOne({
       email: user.email,
