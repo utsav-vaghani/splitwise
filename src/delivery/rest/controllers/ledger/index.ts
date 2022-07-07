@@ -10,7 +10,7 @@ class LedgerController {
 
     // binding methods
     this.GetByID = this.GetByID.bind(this);
-    this.Get = this.Get.bind(this);
+    this.GetByPayerID = this.GetByPayerID.bind(this);
   }
 
   async GetByID(req: Request, Res: Response, next: NextFunction) {
@@ -26,7 +26,7 @@ class LedgerController {
     }
   }
 
-  async Get(req: Request, Res: Response, next: NextFunction) {
+  async GetByPayerID(req: Request, res: Response, next: NextFunction) {
     try {
       let data: any = {};
 

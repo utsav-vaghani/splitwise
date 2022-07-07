@@ -11,8 +11,7 @@ class PaymentController {
     // binding methods to object
     this.Add = this.Add.bind(this);
     this.Settle = this.Settle.bind(this);
-    this.Find = this.Find.bind(this);
-    this.FindOne = this.FindOne.bind(this);
+    this.Get = this.Get.bind(this);
   }
 
   async Add(req: Request, res: Response, next: NextFunction) {
@@ -43,17 +42,28 @@ class PaymentController {
     next();
   }
 
-  async FindOne(req: Request, res: Response, next: NextFunction) {
-    const userId = req.params.userId;
-    const payerId = req.params.payerId;
+  async Get(req: Request, res: Response, next: NextFunction) {
+    let userId, payerId;
+
+    if (req.query.userId !== undefined) {
+      const userIdStr = req.query.userId.toString();
+      userId = userIdStr.includes(",") ? userIdStr.split(",")[0] : userIdStr;
+    }
+
+    if (req.query.payerId != undefined) {
+      const payerIdStr = req.query.payerId.toString();
+      payerId = payerIdStr.includes(",")
+        ? payerIdStr.split(",")[0]
+        : payerIdStr;
+    }
 
     try {
-      const data = await this.paymentService.FindOne({
-        userId,
-        payerId,
-      });
+      if (userId !== undefined && payerId !== undefined) {
+        const data = await this.paymentService.FindOne({
+          userId,
+          payerId,
+        });
 
-      if (data) {
         next({
           statusCode: 200,
           data: {
@@ -66,38 +76,27 @@ class PaymentController {
         });
 
         return;
+      } else if (userId !== undefined) {
+        const data = await this.paymentService.FindByUserId(userId);
+        next({
+          statusCode: 200,
+          data: {
+            transactions: data,
+          },
+        });
+        return;
+      } else if (payerId !== undefined) {
+        const data = await this.paymentService.FindByPayerId(payerId);
+        next({
+          statusCode: 200,
+          data: {
+            transactions: data,
+          },
+        });
+        return;
       }
 
-      throw new CustomError(500, "internal server error");
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  async Find(req: Request, res: Response, next: NextFunction) {
-    try {
-      let data: any = {};
-      if (req.query.userId != undefined) {
-        const userIdStr = req.query.userId.toString();
-        const userId = userIdStr.includes(",")
-          ? userIdStr.split(",")[0]
-          : userIdStr;
-        data.transactions = await this.paymentService.FindByUserId(userId);
-      } else if (req.query.payerId != undefined) {
-        const payerIdStr = req.query.payerId.toString();
-        const payerId = payerIdStr.includes(",")
-          ? payerIdStr.split(",")[0]
-          : payerIdStr;
-        data.transactions = await this.paymentService.FindByPayerId(payerId);
-      } else {
-        throw new CustomError(400, "userId or payerId required");
-      }
-
-      next({
-        statusCode: 200,
-        data: data,
-      });
-      next({});
+      throw new CustomError(400, "userId or payerId required");
     } catch (err) {
       next(err);
     }
